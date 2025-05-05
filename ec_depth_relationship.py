@@ -8,7 +8,7 @@ plt.style.use('default')
 
 try:
     # Read the Excel file
-    df = pd.read_excel('../EC.xlsx') 
+    df = pd.read_excel('United.xlsx')  
     
     # Rename columns based on first row
     df.columns = df.iloc[0]
