@@ -84,6 +84,7 @@ log/
 *.xlsx
 *.xls
 *.csv
+*.png
 *.dat
 *.out
 *.pid
