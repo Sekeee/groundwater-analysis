@@ -6,13 +6,11 @@ import re
 import os
 
 def create_station_plot(station_data, precip_data, station_name):
-    # Create figure
+
     fig, ax1 = plt.subplots(figsize=(10, 6))
     
-    # Get unique stations and their depths
     stations = station_data['station'].unique()
     
-    # Custom order: EX1, EX2, then 01-09
     ordered_stations = []
     for s in ['SS-' + station_name.split()[-1] + '-EX1', 'SS-' + station_name.split()[-1] + '-EX2']:
         if s in stations:
@@ -24,13 +22,11 @@ def create_station_plot(station_data, precip_data, station_name):
     
     colors = plt.cm.nipy_spectral(np.linspace(0, 1, len(ordered_stations)))
     
-    # Plot nitrate data for each station
     for i, station in enumerate(ordered_stations):
         data = station_data[station_data['station'] == station].sort_values('Date')
         label = f"{station} ({data['Depths (m)'].iloc[0]} m)" if not data['Depths (m)'].isnull().all() else station
         ax1.plot(data['Date'], data['Nitrates (mg/L NO₃⁻)'], label=label, color=colors[i], linewidth=2)
     
-    # Set up primary axis
     ax1.set_ylabel('Nitrates (mg/L NO₃⁻)', fontsize=12)
     ax1.set_xlabel('Date', fontsize=12)
     ax1.set_ylim(bottom=0)
@@ -43,13 +39,12 @@ def create_station_plot(station_data, precip_data, station_name):
     ax1.xaxis.set_major_formatter(DateFormatter('%m/%Y'))
     plt.xticks(rotation=30)
     
-    # Set up secondary axis for precipitation
+    
     ax2 = ax1.twinx()
     ax2.bar(precip_data['Date & Time [UTC]'], precip_data['Precipitation'], width=2, color='black', alpha=0.18, label='Precipitation')
     ax2.set_ylabel('Rain (mm day$^{-1}$)', fontsize=12)
     ax2.set_ylim(0, 21)
     
-    # Add depth annotations
     for i, station in enumerate(ordered_stations):
         data = station_data[station_data['station'] == station].sort_values('Date')
         if not data.empty and not data['Depths (m)'].isnull().all():
@@ -59,17 +54,14 @@ def create_station_plot(station_data, precip_data, station_name):
             ax1.annotate(f'{depth} m', xy=(last_x, last_y), xytext=(5, 0), textcoords='offset points',
                          color=colors[i], fontsize=9, va='center', fontweight='bold')
     
-    # Add legend (top left, two columns, only nitrate lines, no border, smaller font)
     lines1, labels1 = ax1.get_legend_handles_labels()
     ax1.legend(lines1, labels1, loc='upper left', ncol=2, fontsize=9, frameon=False)
     
     plt.title(f'Nitrates and Precipitation Time Series for {station_name}', fontsize=14, fontweight='bold')
     plt.tight_layout()
     
-    # Create output directory if it doesn't exist
     os.makedirs('station_plots', exist_ok=True)
     
-    # Save the plot
     plt.savefig(f'station_plots/{station_name}_nitrate_precip.png', dpi=300, bbox_inches='tight')
     plt.close()
 
@@ -78,20 +70,16 @@ united = pd.read_excel('United.xlsx', header=1)
 precip = pd.read_excel('UZM_Precipitation_Combined-Climate data.xlsx')
 print('Data loaded.')
 
-# Convert dates
 united['Date'] = pd.to_datetime(united['Date'])
 precip['Date & Time [UTC]'] = pd.to_datetime(precip['Date & Time [UTC]'])
 
-# Clean nitrate data
 united['Nitrates (mg/L NO₃⁻)'] = united['Nitrates (mg/L NO₃⁻)'].astype(str).str.replace('<', '', regex=False)
 united['Nitrates (mg/L NO₃⁻)'] = pd.to_numeric(united['Nitrates (mg/L NO₃⁻)'], errors='coerce')
 united = united.dropna(subset=['Nitrates (mg/L NO₃⁻)'])
 
-# Get all unique station numbers
 station_numbers = united['station'].str.extract(r'SS-(\d+)')[0].unique()
 print(f'Found station numbers: {station_numbers}')
 
-# Generate plots for each station
 for station_num in station_numbers:
     print(f'Processing station: {station_num}')
     # Create mask for current station

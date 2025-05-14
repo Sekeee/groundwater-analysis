@@ -9,7 +9,7 @@ def plot_station_temp(station_code, df):
     station_data = df[df['station'].str.startswith(station_code)].copy()
     print(f"\n--- {station_code} ---")
     print(f"Number of records: {len(station_data)}")
-    # Temperature is in column J (index 9)
+
     station_data['Temperature'] = pd.to_numeric(df.iloc[station_data.index, 9], errors='coerce')
     station_data['Depths (m)'] = pd.to_numeric(station_data['Depths (m)'], errors='coerce')
     station_data = station_data.dropna(subset=['Temperature', 'Depths (m)'])
@@ -43,16 +43,16 @@ def plot_station_temp(station_code, df):
     cbar.set_label('Date', fontsize=10, fontweight='bold')
     tick_locations = np.linspace(station_data['Date'].astype(np.int64).min(),
                                station_data['Date'].astype(np.int64).max(),
-                               5)
+                               8)
     cbar.set_ticks(tick_locations)
     cbar.set_ticklabels([pd.Timestamp(ts).strftime('%Y-%m-%d') 
                         for ts in tick_locations])
     ax.grid(True, linestyle='--', alpha=0.7)
-    # Median Temperature line (for each unique depth)
+    
     median_data = station_data.groupby('Depths (m)', as_index=False)['Temperature'].median().sort_values('Depths (m)')
     ax.plot(median_data['Temperature'], median_data['Depths (m)'], color='black', linewidth=2, linestyle='--', label='Median')
     print(f"Plotted median Temperature line for {station_code}.")
-    # Connect dots for each date with a thin, low-opacity line of the same color
+    
     unique_dates = station_data['Date'].unique()
     norm = plt.Normalize(station_data['Date'].astype(np.int64).min(), station_data['Date'].astype(np.int64).max())
     cmap = plt.get_cmap('jet')

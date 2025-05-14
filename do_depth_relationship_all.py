@@ -9,7 +9,7 @@ def plot_station_do(station_code, df):
     station_data = df[df['station'].str.startswith(station_code)].copy()
     print(f"\n--- {station_code} ---")
     print(f"Number of records: {len(station_data)}")
-    # DO (mg/L) is in column K (index 10)
+
     station_data['DO (mg/L)'] = pd.to_numeric(df.iloc[station_data.index, 10], errors='coerce')
     station_data['Depths (m)'] = pd.to_numeric(station_data['Depths (m)'], errors='coerce')
     station_data = station_data.dropna(subset=['DO (mg/L)', 'Depths (m)'])
@@ -22,7 +22,7 @@ def plot_station_do(station_code, df):
     ax_top = ax.twiny()
     scatter = ax.scatter(station_data['DO (mg/L)'], 
                         station_data['Depths (m)'],
-                        c=station_data['Date'].astype(np.int64),
+                        c=station_data['Date'].astype(np.int64), 
                         cmap='jet',
                         s=100,
                         alpha=0.8,
@@ -43,12 +43,12 @@ def plot_station_do(station_code, df):
     cbar.set_label('Date', fontsize=10, fontweight='bold')
     tick_locations = np.linspace(station_data['Date'].astype(np.int64).min(),
                                station_data['Date'].astype(np.int64).max(),
-                               5)
+                               8)
     cbar.set_ticks(tick_locations)
     cbar.set_ticklabels([pd.Timestamp(ts).strftime('%Y-%m-%d') 
                         for ts in tick_locations])
     ax.grid(True, linestyle='--', alpha=0.7)
-    # Connect dots for each date with a thin, semi-transparent line of the same color
+
     unique_dates = station_data['Date'].unique()
     norm = plt.Normalize(station_data['Date'].astype(np.int64).min(), station_data['Date'].astype(np.int64).max())
     cmap = plt.get_cmap('jet')
@@ -56,7 +56,7 @@ def plot_station_do(station_code, df):
         data = station_data[station_data['Date'] == date].sort_values('Depths (m)')
         color = cmap(norm(pd.to_datetime(date).to_datetime64().astype(np.int64)))
         ax.plot(data['DO (mg/L)'], data['Depths (m)'], color=color, linewidth=1, alpha=0.6)
-    # Median DO line (for each unique depth)
+
     median_data = station_data.groupby('Depths (m)', as_index=False)['DO (mg/L)'].median().sort_values('Depths (m)')
     ax.plot(median_data['DO (mg/L)'], median_data['Depths (m)'], color='black', linewidth=2, linestyle='--', label='Median')
     print(f"Plotted median DO line for {station_code}.")

@@ -42,12 +42,12 @@ def plot_station(station_code, df):
     cbar.set_label('Date', fontsize=10, fontweight='bold')
     tick_locations = np.linspace(station_data['Date'].astype(np.int64).min(),
                                station_data['Date'].astype(np.int64).max(),
-                               5)
+                               8)
     cbar.set_ticks(tick_locations)
     cbar.set_ticklabels([pd.Timestamp(ts).strftime('%Y-%m-%d') 
                         for ts in tick_locations])
     ax.grid(True, linestyle='--', alpha=0.7)
-    # Connect dots for each date with a thin, semi-transparent line of the same color
+    
     unique_dates = station_data['Date'].unique()
     norm = plt.Normalize(station_data['Date'].astype(np.int64).min(), station_data['Date'].astype(np.int64).max())
     cmap = plt.get_cmap('jet')
@@ -55,7 +55,7 @@ def plot_station(station_code, df):
         data = station_data[station_data['Date'] == date].sort_values('Depths (m)')
         color = cmap(norm(pd.to_datetime(date).to_datetime64().astype(np.int64)))
         ax.plot(data['EC (μS/cm)'], data['Depths (m)'], color=color, linewidth=1, alpha=0.6)
-    # Median EC line (for each unique depth)
+
     median_data = station_data.groupby('Depths (m)', as_index=False)['EC (μS/cm)'].median().sort_values('Depths (m)')
     ax.plot(median_data['EC (μS/cm)'], median_data['Depths (m)'], color='black', linewidth=2, linestyle='--', label='Median')
     print(f"Plotted median EC line for {station_code}.")

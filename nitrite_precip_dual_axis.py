@@ -58,7 +58,6 @@ print('Data loaded.')
 united['Date'] = pd.to_datetime(united['Date'])
 precip['Date & Time [UTC]'] = pd.to_datetime(precip['Date & Time [UTC]'])
 
-# Clean nitrite data (column P: Nitrites (mg/L NO₂⁻))
 united['Nitrites (mg/L NO₂⁻)'] = united['Nitrites (mg/L NO₂⁻)'].astype(str).str.replace('<', '', regex=False)
 united['Nitrites (mg/L NO₂⁻)'] = pd.to_numeric(united['Nitrites (mg/L NO₂⁻)'], errors='coerce')
 united = united.dropna(subset=['Nitrites (mg/L NO₂⁻)'])
